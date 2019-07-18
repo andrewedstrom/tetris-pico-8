@@ -34,7 +34,7 @@ function _draw()
 	draw_block(current_block)
 	foreach(blocks, draw_block)
 	if (game_over) then
-		print("game over")
+		print("game over", 70, 24, 8)
 	end
 end
 
