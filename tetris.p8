@@ -11,66 +11,77 @@ local blocks
 local game_over
 
 function _init()
-	current_block=new_block()
+ current_block=new_block()
 
-	frame=0
-	gravity=20
-	bottom=128-(blk_size) 
-	right_edge=(64-blk_size)
-	blocks={}
-	game_over=false
+ frame=0
+ gravity=20
+ bottom=128-(blk_size) 
+ right_edge=(64-blk_size)
+ blocks={}
+ game_over=false
 end
 
 function _update()
-	if(not game_over) then
-		tick()
-		handle_input()
-	end
+ if(not game_over) then
+  tick()
+  handle_input()
+ end
 end
 
 function _draw()
-	cls()
-	map(0,0,0,0,128,128)
-	draw_block(current_block)
-	foreach(blocks, draw_block)
-	if (game_over) then
-		print("game over", 70, 24, 8)
-	end
+ cls()
+ map(0,0,0,0,128,128)
+ draw_block(current_block)
+ foreach(blocks, draw_block)
+ if (game_over) then
+  print("game over", 70, 24, 8)
+ end
 end
 
 function tick() 
-	frame+=1
-	
-	if (frame % gravity == 0) then
-		fall(current_block)
-	end
+ frame+=1
+ 
+ if (frame % gravity == 0) then
+  if (hit_bottom(current_block)) then
+   add(blocks, current_block)
+   current_block=new_block()
+   if (hit_bottom(current_block)) game_over=true
+  else
+   fall(current_block)
+  end
+ end
 end
 
 function handle_input()
-	if (btnp(0) and can_move_left(current_block)) then
-		current_block.x -= blk_size -- left
-	elseif (btnp(1) and can_move_right(current_block)) then
-		current_block.x+=blk_size -- right
-	end
-	if (btn(3)) fall(current_block)
+ if (btnp(0) and can_move_left(current_block)) then
+  current_block.x -= blk_size -- left
+ elseif (btnp(1) and can_move_right(current_block)) then
+  current_block.x+=blk_size -- right
+ elseif (btn(3)) then
+  fall(current_block)
+ elseif (btn(4) or btn(5)) then
+  hard_drop(current_block)
+ end
 end
 
 function fall(block)
-	if (hit_bottom(block)) then
-		add(blocks, current_block)
-		current_block=new_block()
-		if (hit_bottom(current_block)) game_over=true -- todo: there''s a bug here if you hit the top with a non center block
-	else
+ if (not hit_bottom(block)) then
   block.y+=blk_size
  end
 end
 
+function hard_drop(block)
+ repeat
+  fall(block)
+ until hit_bottom(block)
+end
+
 function hit_bottom(block)
-	local min_y=bottom
-	for b in all(blocks) do
-		if (b.x == block.x) min_y=min(min_y, b.y)
-	end
-	return block.y == min_y-blk_size
+ local min_y=bottom
+ for b in all(blocks) do
+  if (b.x == block.x) min_y=min(min_y, b.y)
+ end
+ return block.y == min_y-blk_size
 end
 
 function can_move_right(block)
@@ -94,11 +105,11 @@ function can_move_left(block)
 end
 
 function draw_block(block)
-	rectfill(block.x+1, block.y+1, block.x+blk_size-1, block.y+blk_size-1, block.color)
+ rectfill(block.x+1, block.y+1, block.x+blk_size-1, block.y+blk_size-1, block.color)
 end
 
 function new_block()
-	return {x=32, y=0, color=rnd(14)+2} -- no black blocks
+ return {x=32, y=0, color=rnd(14)+2} -- no black blocks
 end
 
 __gfx__
