@@ -109,7 +109,7 @@ function draw_block(block)
 end
 
 function new_block()
- return {x=32, y=0, color=rnd(14)+2} -- no black blocks
+ return {x=32, y=0, color=rnd(14)+2} -- no black or dark blue blocks
 end
 
 __gfx__
