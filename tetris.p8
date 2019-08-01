@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 18
 __lua__
-local current_block
+local current_piece
 local frame
 local gravity
 local blk_size=8
@@ -9,9 +9,193 @@ local bottom
 local right_edge
 local blocks
 local game_over
+local tetrinos = {
+ { -- i type
+  {
+   {1, 1, 1, 1},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {1, 0, 0, 0},
+   {1, 0, 0, 0},
+   {1, 0, 0, 0},
+   {1, 0, 0, 0}
+  },
+  {
+   {1, 1, 1, 1},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {1, 0, 0, 0},
+   {1, 0, 0, 0},
+   {1, 0, 0, 0},
+   {1, 0, 0, 0}
+  }
+ },
+ { -- o type
+  {
+   {0, 1, 1, 0},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 1, 0},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 1, 0},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 1, 0},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  }
+ },
+ { -- j type
+  {
+   {0, 0, 1, 0},
+   {0, 0, 1, 0},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 0, 0},
+   {0, 1, 1, 1},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 1, 0},
+   {0, 1, 0, 0},
+   {0, 1, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 1, 1},
+   {0, 0, 0, 1},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  }
+ },
+ { -- l type
+  {
+   {0, 1, 0, 0},
+   {0, 1, 0, 0},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 1, 1},
+   {0, 1, 0, 0},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 1, 0},
+   {0, 0, 1, 0},
+   {0, 0, 1, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 0, 0, 1},
+   {0, 1, 1, 1},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  }
+ },
+ { -- s type
+  {
+   {0, 0, 1, 1},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 0, 0},
+   {0, 1, 1, 0},
+   {0, 0, 1, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 0, 1, 1},
+   {0, 1, 1, 0},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 0, 0},
+   {0, 1, 1, 0},
+   {0, 0, 1, 0},
+   {0, 0, 0, 0}
+  }
+ },
+ { -- z type
+  {
+   {0, 1, 1, 0},
+   {0, 0, 1, 1},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 0, 1, 0},
+   {0, 1, 1, 0},
+   {0, 1, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 1, 0},
+   {0, 0, 1, 1},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 0, 1, 0},
+   {0, 1, 1, 0},
+   {0, 1, 0, 0},
+   {0, 0, 0, 0}
+  }
+ },
+ { -- t type
+  {
+   {0, 0, 1, 0},
+   {0, 1, 1, 1},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 0, 1, 0},
+   {0, 0, 1, 1},
+   {0, 0, 1, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 1, 1, 1},
+   {0, 0, 1, 0},
+   {0, 0, 0, 0},
+   {0, 0, 0, 0}
+  },
+  {
+   {0, 0, 1, 0},
+   {0, 1, 1, 0},
+   {0, 0, 1, 0},
+   {0, 0, 0, 0}
+  }
+ }
+}
 
 function _init()
- current_block=new_block()
+ current_piece=new_piece()
 
  frame=0
  gravity=20
@@ -31,7 +215,7 @@ end
 function _draw()
  cls()
  map(0,0,0,0,128,128)
- draw_block(current_block)
+ draw_piece(current_piece)
  foreach(blocks, draw_block)
  if (game_over) then
   print("game over", 70, 24, 8)
@@ -40,28 +224,35 @@ end
 
 function tick() 
  frame+=1
- 
  if (frame % gravity == 0) then
-  if (hit_bottom(current_block)) then
-   add(blocks, current_block)
-   current_block=new_block()
-   if (hit_bottom(current_block)) game_over=true
+  if (hit_bottom(current_piece)) then
+   save_piece(current_piece)
+   current_piece=new_piece()
+   if (hit_bottom(current_piece)) game_over=true
   else
-   fall(current_block)
+   fall(current_piece)
   end
  end
 end
 
 function handle_input()
- if (btnp(0) and can_move_left(current_block)) then
-  current_block.x -= blk_size -- left
- elseif (btnp(1) and can_move_right(current_block)) then
-  current_block.x+=blk_size -- right
+ if (btnp(0) and can_move_left(current_piece)) then
+  current_piece.x -= blk_size -- left
+ elseif (btnp(1) and can_move_right(current_piece)) then
+  current_piece.x+=blk_size -- right
+ elseif (btnp(2)) then
+  current_piece=rotate(current_piece)
  elseif (btn(3)) then
-  fall(current_block)
+  fall(current_piece)
  elseif (btn(4) or btn(5)) then
-  hard_drop(current_block)
+  hard_drop(current_piece)
  end
+end
+
+function rotate(piece)
+ piece.rotation+=1
+ if (piece.rotation > 4) piece.rotation = 1
+ return piece
 end
 
 function fall(block)
@@ -76,40 +267,95 @@ function hard_drop(block)
  until hit_bottom(block)
 end
 
-function hit_bottom(block)
- local min_y=bottom
- for b in all(blocks) do
-  if (b.x == block.x) min_y=min(min_y, b.y)
+function save_piece(piece)
+ for row=1,4 do
+  for col=1,4 do
+   if (tetrinos[piece.type][piece.rotation][row][col] == 1) then
+    local player_block = {x=piece.x + ((row-1)*blk_size), y=piece.y + ((col-1)*blk_size), color=piece.color}
+    add(blocks, player_block)
+   end
+  end
  end
- return block.y == min_y-blk_size
 end
 
-function can_move_right(block)
- if (block.x < right_edge) then
-  for b in all(blocks) do
-   if (b.y == block.y and b.x == block.x+blk_size) return false
+-- function hit_bottom(block)
+--  local min_y=bottom
+--  for b in all(blocks) do
+--   if (b.x == block.x) min_y=min(min_y, b.y)
+--  end
+--  return block.y == min_y-blk_size
+-- end
+
+function hit_bottom(piece)
+ for row=1,4 do
+  for col=1,4 do
+   if (tetrinos[piece.type][piece.rotation][row][col] == 1) then
+    local player_block = {x=piece.x + ((row-1)*blk_size), y=piece.y + ((col-1)*blk_size)}
+    local min_y=bottom
+    for b in all(blocks) do
+     if (b.x == player_block.x) min_y=min(min_y, b.y)
+    end
+    if (player_block.y == min_y-blk_size) return true
+   end
   end
-  return true
- end
+ end 
  return false
 end
 
-function can_move_left(block)
- if (block.x > 0) then
-  for b in all(blocks) do
-   if (b.y == block.y and b.x == block.x-blk_size) return false
+function can_move_right(piece)
+ for row=1,4 do
+  for col=1,4 do
+   if (tetrinos[piece.type][piece.rotation][row][col] == 1) then
+    local player_block = {x=piece.x + ((row-1)*blk_size), y=piece.y + ((col-1)*blk_size)}
+    if (player_block.x < right_edge) then
+     for b in all(blocks) do
+      if (b.y == player_block.y and b.x == player_block.x+blk_size) return false
+     end
+    else 
+     return false
+    end
+   end
   end
-  return true
- end
- return false
+ end 
+ return true
 end
+
+
+function can_move_left(piece)
+ for row=1,4 do
+  for col=1,4 do
+   if (tetrinos[piece.type][piece.rotation][row][col] == 1) then
+    local player_block = {x=piece.x + ((row-1)*blk_size), y=piece.y + ((col-1)*blk_size)}
+    if (player_block.x > 0) then
+     for b in all(blocks) do
+      if (b.y == player_block.y and b.x == player_block.x-blk_size) return false
+     end
+    else 
+     return false
+    end
+   end
+  end
+ end 
+ return true
+end
+
+function draw_piece(piece) 
+ for row=1,4 do
+  for col=1,4 do
+   if (tetrinos[piece.type][piece.rotation][row][col] == 1) then
+    draw_block({x=piece.x + ((row-1)*blk_size), y=piece.y + ((col-1)*blk_size), color=piece.color})
+   end
+  end
+ end 
+end
+
 
 function draw_block(block)
  rectfill(block.x+1, block.y+1, block.x+blk_size-1, block.y+blk_size-1, block.color)
 end
 
-function new_block()
- return {x=32, y=0, color=rnd(14)+2} -- no black or dark blue blocks
+function new_piece()
+ return {x=32, y=0, color=rnd(14)+2, type=flr(rnd(7))+1, rotation=1} -- no black or dark blue blocks
 end
 
 __gfx__
