@@ -219,9 +219,9 @@ function _draw()
  map(0,0,0,0,128,128)
  draw_piece(current_piece)
  foreach(blocks, draw_block)
- if (game_over) then
+ if game_over then
   print("game over", 70, 24, 8)
-  if (not game_over_sound_playing) then
+  if not game_over_sound_playing then
    sfx(0)
    game_over_sound_playing=true
   end
@@ -230,8 +230,8 @@ end
 
 function tick() 
  frame+=1
- if (frame % gravity == 0) then
-  if (hit_bottom(current_piece)) then
+ if frame % gravity == 0 then
+  if hit_bottom(current_piece) then
    save_piece(current_piece)
    current_piece=new_piece()
    if (hit_bottom(current_piece)) game_over=true
@@ -242,15 +242,15 @@ function tick()
 end
 
 function handle_input()
- if (btnp(0) and can_move_left(current_piece)) then
+ if btnp(0) and can_move_left(current_piece) then
   current_piece.x -= blk_size -- left
- elseif (btnp(1) and can_move_right(current_piece)) then
+ elseif btnp(1) and can_move_right(current_piece) then
   current_piece.x+=blk_size -- right
- elseif (btnp(2)) then
+ elseif btnp(2) then
   current_piece=rotate(current_piece)
- elseif (btn(3)) then
+ elseif btn(3) then
   fall(current_piece)
- elseif (btn(4) or btn(5)) then
+ elseif btn(4) or btn(5) then
   hard_drop(current_piece)
  end
 end
@@ -262,7 +262,7 @@ function rotate(piece)
 end
 
 function fall(block)
- if (not hit_bottom(block)) then
+ if not hit_bottom(block) then
   block.y+=blk_size
  end
 end
@@ -276,7 +276,7 @@ end
 function save_piece(piece)
  for row=1,4 do
   for col=1,4 do
-   if (tetrinos[piece.type][piece.rotation][row][col] == 1) then
+   if tetrinos[piece.type][piece.rotation][row][col] == 1 then
     local player_block = {x=piece.x + ((row-1)*blk_size), y=piece.y + ((col-1)*blk_size), color=piece.color}
     add(blocks, player_block)
    end
@@ -295,7 +295,7 @@ end
 function hit_bottom(piece)
  for row=1,4 do
   for col=1,4 do
-   if (tetrinos[piece.type][piece.rotation][row][col] == 1) then
+   if tetrinos[piece.type][piece.rotation][row][col] == 1 then
     local player_block = {x=piece.x + ((row-1)*blk_size), y=piece.y + ((col-1)*blk_size)}
     local min_y=bottom
     for b in all(blocks) do
@@ -311,9 +311,9 @@ end
 function can_move_right(piece)
  for row=1,4 do
   for col=1,4 do
-   if (tetrinos[piece.type][piece.rotation][row][col] == 1) then
+   if tetrinos[piece.type][piece.rotation][row][col] == 1 then
     local player_block = {x=piece.x + ((row-1)*blk_size), y=piece.y + ((col-1)*blk_size)}
-    if (player_block.x < right_edge) then
+    if player_block.x < right_edge then
      for b in all(blocks) do
       if (b.y == player_block.y and b.x == player_block.x+blk_size) return false
      end
@@ -330,9 +330,9 @@ end
 function can_move_left(piece)
  for row=1,4 do
   for col=1,4 do
-   if (tetrinos[piece.type][piece.rotation][row][col] == 1) then
+   if tetrinos[piece.type][piece.rotation][row][col] == 1 then
     local player_block = {x=piece.x + ((row-1)*blk_size), y=piece.y + ((col-1)*blk_size)}
-    if (player_block.x > 0) then
+    if player_block.x > 0 then
      for b in all(blocks) do
       if (b.y == player_block.y and b.x == player_block.x-blk_size) return false
      end
@@ -348,7 +348,7 @@ end
 function draw_piece(piece) 
  for row=1,4 do
   for col=1,4 do
-   if (tetrinos[piece.type][piece.rotation][row][col] == 1) then
+   if tetrinos[piece.type][piece.rotation][row][col] == 1 then
     draw_block({x=piece.x + ((row-1)*blk_size), y=piece.y + ((col-1)*blk_size), color=piece.color})
    end
   end
