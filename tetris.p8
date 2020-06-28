@@ -4,7 +4,7 @@ __lua__
 local current_piece
 local frame
 local gravity
-local blk_size=8
+local blk_size
 local bottom
 local right_edge
 local blocks
@@ -198,6 +198,7 @@ local tetrinos = {
 function _init()
  current_piece=new_piece()
 
+ blk_size=8
  frame=0
  gravity=20
  bottom=128-(blk_size) 
@@ -216,7 +217,7 @@ end
 
 function _draw()
  cls()
- map(0,0,0,0,128,128)
+ rect(0,0,blk_size*10, bottom,7)
  draw_piece(current_piece)
  foreach(blocks, draw_block)
  if game_over then
@@ -284,14 +285,6 @@ function save_piece(piece)
  end
 end
 
--- function hit_bottom(block)
---  local min_y=bottom
---  for b in all(blocks) do
---   if (b.x == block.x) min_y=min(min_y, b.y)
---  end
---  return block.y == min_y-blk_size
--- end
-
 function hit_bottom(piece)
  for row=1,4 do
   for col=1,4 do
@@ -357,6 +350,7 @@ end
 
 
 function draw_block(block)
+ rect(block.x, block.y, block.x+blk_size, block.y+blk_size, 7)
  rectfill(block.x+1, block.y+1, block.x+blk_size-1, block.y+blk_size-1, block.color)
 end
 
