@@ -23,3 +23,4 @@
 
 # Resources
 - [Official tetris guideline](https://tetris.fandom.com/wiki/Tetris_Guideline)
+- A tetris clone for pico8 that's wayyy better than anything I'll ever make: https://www.lexaloffle.com/bbs/?tid=33775
