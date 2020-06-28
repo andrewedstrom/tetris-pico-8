@@ -225,7 +225,7 @@ function _draw()
 	foreach(blocks, draw_block)
 
 	if game_over then
-		print("game over", right_edge, 24, 8)
+		print("game over", right_edge+2*blk_size, 24, 8)
 		if not game_over_sound_playing then
 			sfx(0)
 			game_over_sound_playing=true
