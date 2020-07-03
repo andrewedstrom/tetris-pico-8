@@ -3,6 +3,7 @@
 
 # TODO
 - [] clear out rows when completed
+- [] store saved blocks in 2d array
 - [] sound for dropping blocks
 - [] speed up gradually
 - [] make a score

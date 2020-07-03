@@ -5,6 +5,7 @@ local current_piece
 local frame
 local gravity
 local blk_size
+local board_width
 local bottom
 local right_edge
 local blocks
@@ -201,8 +202,9 @@ function _init()
 	blk_size=8
 	frame=0
 	gravity=20
+	board_width=10
 	bottom=128-(blk_size) 
-	right_edge=(blk_size*10-blk_size)
+	right_edge=(blk_size*board_width-blk_size) --todo why is it "- blk_size"?
 	blocks={}
 	game_over=false
 	game_over_sound_playing=false
@@ -250,13 +252,44 @@ end
 function save_piece(piece)
 	for row=1,4 do
 		for col=1,4 do
-			if tetrinos[piece.type][piece.rotation][row][col] == 1 then
-				local player_block = {x=piece.x + ((row-1)*blk_size), y=piece.y + ((col-1)*blk_size), color=piece.color}
+			if tetrinos[piece.type][piece.rotation][row][col] == 1 then --save block
+				local which_row=piece.y + ((col-1)*blk_size)
+				local player_block = {
+					x=piece.x + ((row-1)*blk_size), -- todo why calculate it like this?
+					y=which_row, 
+					color=piece.color
+				}
 				add(blocks, player_block)
+				
+				if full(blocks, which_row) then
+					clear_row(blocks,which_row)
+				end
 			end
 		end
 	end
 end
+
+function full(blocks, row) 
+	local num_blocks_in_row=0
+	for b in all(blocks) do
+		if b.y == row then 
+			num_blocks_in_row+=1
+		end
+	end
+	if num_blocks_in_row >= board_width then 
+		return true
+	end
+	return false
+end
+
+function clear_row(blocks, row)
+	for k,b in pairs(blocks) do 
+		if b.y == row then
+			blocks[k]=nil
+		end
+	end
+end
+
 
 function draw_block(block)
 	rect(block.x, block.y, block.x+blk_size, block.y+blk_size, 7)
@@ -319,7 +352,7 @@ function new_piece()
 		
 		rotate=function(self)
 			self.rotation+=1
-			if (self.rotation > 4) self.rotation = 1
+			if (self.rotation > 4) self.rotation = 1 -- todo use % instead
 		end,
 
 		update=function(self)
